@@ -1,0 +1,21 @@
+# Local Development Configuration for IntelliJ IDEA
+# This file contains the configuration for running services locally
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    com.banking.gateway: DEBUG
+    org.springframework.cloud: DEBUG

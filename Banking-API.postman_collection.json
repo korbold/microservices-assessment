@@ -1,0 +1,926 @@
+{
+	"info": {
+		"_postman_id": "banking-microservices-api",
+		"name": "Banking Microservices API",
+		"description": "Complete API collection for Banking Microservices Architecture",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Eureka Server",
+			"item": [
+				{
+					"name": "Get Eureka Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8761",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8761"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Client Management",
+			"item": [
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Jose Lema\",\n  \"genero\": \"M\",\n  \"edad\": 30,\n  \"identificacion\": \"1234567890\",\n  \"direccion\": \"Otavalo sn y principal\",\n  \"telefono\": \"098254785\",\n  \"contrasena\": \"1234\",\n  \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/clientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/clientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/clientes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Client by Identification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/clientes/identificacion/1234567890",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes",
+								"identificacion",
+								"1234567890"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Jose Lema Updated\",\n  \"genero\": \"M\",\n  \"edad\": 31,\n  \"identificacion\": \"1234567890\",\n  \"direccion\": \"Otavalo sn y principal Updated\",\n  \"telefono\": \"098254785\",\n  \"contrasena\": \"1234\",\n  \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/clientes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Active Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/clientes/activos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes",
+								"activos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/clientes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Account Management",
+			"item": [
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoCuenta\": \"Ahorro\",\n  \"saldoInicial\": 2000.00,\n  \"estado\": true,\n  \"clienteId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Accounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Account by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Account by Number",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas/numero/478758",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas",
+								"numero",
+								"478758"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Accounts by Client ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas/cliente/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas",
+								"cliente",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoCuenta\": \"Ahorro\",\n  \"saldoInicial\": 2500.00,\n  \"estado\": true,\n  \"clienteId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Movement Management",
+			"item": [
+				{
+					"name": "Create Deposit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Deposito\",\n  \"valor\": 500.00,\n  \"cuentaId\": 1,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 1000.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Withdrawal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Retiro\",\n  \"valor\": 200.00,\n  \"cuentaId\": 1,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 800.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Withdrawal - Insufficient Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Retiro\",\n  \"valor\": 10000.00,\n  \"cuentaId\": 1,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 800.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Movements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Movements by Account ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos/cuenta/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos",
+								"cuenta",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Movements by Client ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos/cliente/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos",
+								"cliente",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Movements by Client ID and Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos/cliente/1/fechas?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos",
+								"cliente",
+								"1",
+								"fechas"
+							],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2024-01-01T00:00:00"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2024-12-31T23:59:59"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Generate Account Statement Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/reportes?clienteId=1&fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"reportes"
+							],
+							"query": [
+								{
+									"key": "clienteId",
+									"value": "1"
+								},
+								{
+									"key": "fechaInicio",
+									"value": "2024-01-01T00:00:00"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2024-12-31T23:59:59"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Cases - Sample Data",
+			"item": [
+				{
+					"name": "Create Jose Lema Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Jose Lema\",\n  \"genero\": \"M\",\n  \"edad\": 30,\n  \"identificacion\": \"1234567890\",\n  \"direccion\": \"Otavalo sn y principal\",\n  \"telefono\": \"098254785\",\n  \"contrasena\": \"1234\",\n  \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/clientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Marianela Montalvo Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Marianela Montalvo\",\n  \"genero\": \"F\",\n  \"edad\": 25,\n  \"identificacion\": \"0987654321\",\n  \"direccion\": \"Amazonas y NNUU\",\n  \"telefono\": \"097548965\",\n  \"contrasena\": \"5678\",\n  \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/clientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Juan Osorio Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Osorio\",\n  \"genero\": \"M\",\n  \"edad\": 35,\n  \"identificacion\": \"1122334455\",\n  \"direccion\": \"13 junio y Equinoccial\",\n  \"telefono\": \"098874587\",\n  \"contrasena\": \"1245\",\n  \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/clientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Jose Lema Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoCuenta\": \"Ahorro\",\n  \"saldoInicial\": 2000.00,\n  \"estado\": true,\n  \"clienteId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Marianela Current Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"225487\",\n  \"tipoCuenta\": \"Corriente\",\n  \"saldoInicial\": 100.00,\n  \"estado\": true,\n  \"clienteId\": 2\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Juan Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"495878\",\n  \"tipoCuenta\": \"Ahorros\",\n  \"saldoInicial\": 0.00,\n  \"estado\": true,\n  \"clienteId\": 3\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Marianela Second Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"496825\",\n  \"tipoCuenta\": \"Ahorros\",\n  \"saldoInicial\": 540.00,\n  \"estado\": true,\n  \"clienteId\": 2\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Jose Current Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numeroCuenta\": \"585545\",\n  \"tipoCuenta\": \"Corriente\",\n  \"saldoInicial\": 1000.00,\n  \"estado\": true,\n  \"clienteId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cuentas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cuentas"
+							]
+						}
+					}
+				},
+				{
+					"name": "Withdrawal from Jose Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Retiro\",\n  \"valor\": 575.00,\n  \"cuentaId\": 1,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 1425.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deposit to Marianela Current Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Deposito\",\n  \"valor\": 600.00,\n  \"cuentaId\": 2,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 700.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deposit to Juan Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Deposito\",\n  \"valor\": 150.00,\n  \"cuentaId\": 3,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 150.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Withdrawal from Marianela Second Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipoMovimiento\": \"Retiro\",\n  \"valor\": 540.00,\n  \"cuentaId\": 4,\n  \"fecha\": \"2025-01-17T18:56:31.286Z\",\n  \"saldo\": 0.00\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movimientos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movimientos"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api"
+		},
+		{
+			"key": "eurekaUrl",
+			"value": "http://localhost:8761"
+		}
+	]
+}

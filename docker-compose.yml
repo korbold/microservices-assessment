@@ -1,0 +1,92 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: banking-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: banking_db
+      MYSQL_USER: banking_user
+      MYSQL_PASSWORD: banking_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./BaseDatos.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - banking-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    container_name: banking-eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - banking-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: banking-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+    networks:
+      - banking-network
+    depends_on:
+      - eureka-server
+
+  client-person-service:
+    build:
+      context: .
+      dockerfile: client-person-service/Dockerfile
+    container_name: banking-client-service
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/banking_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_DATASOURCE_USERNAME=banking_user
+      - SPRING_DATASOURCE_PASSWORD=banking_password
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_H2_CONSOLE_ENABLED=false
+    networks:
+      - banking-network
+    depends_on:
+      - eureka-server
+      - mysql
+
+  account-movement-service:
+    build:
+      context: .
+      dockerfile: account-movement-service/Dockerfile
+    container_name: banking-account-service
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/banking_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_DATASOURCE_USERNAME=banking_user
+      - SPRING_DATASOURCE_PASSWORD=banking_password
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_H2_CONSOLE_ENABLED=false
+      - CLIENT_SERVICE_URL=http://client-person-service:8081
+    networks:
+      - banking-network
+    depends_on:
+      - eureka-server
+      - mysql
+      - client-person-service
+
+volumes:
+  mysql_data:
+
+networks:
+  banking-network:
+    driver: bridge

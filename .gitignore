@@ -1,0 +1,364 @@
+# ===========================================
+# Banking Microservices .gitignore
+# Spring Boot + Maven + Docker + MySQL
+# ===========================================
+
+# ===========================================
+# Java
+# ===========================================
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# ===========================================
+# Maven
+# ===========================================
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ===========================================
+# Spring Boot
+# ===========================================
+*.log
+logs/
+application-*.yml
+application-*.properties
+!application.yml
+!application.properties
+!application-local.yml
+!application-local.properties
+
+# ===========================================
+# IDE - IntelliJ IDEA
+# ===========================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# ===========================================
+# IDE - Eclipse
+# ===========================================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# ===========================================
+# IDE - VS Code
+# ===========================================
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ===========================================
+# Docker
+# ===========================================
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+# ===========================================
+# Database
+# ===========================================
+*.db
+*.sqlite
+*.sqlite3
+database/
+data/
+mysql-data/
+mysql_data/
+
+# ===========================================
+# Logs
+# ===========================================
+logs/
+*.log
+log/
+application.log
+spring.log
+error.log
+debug.log
+trace.log
+
+# ===========================================
+# OS Generated Files
+# ===========================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===========================================
+# Temporary Files
+# ===========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+\#*#
+.#*#
+*~
+
+# ===========================================
+# Build Artifacts
+# ===========================================
+build/
+dist/
+lib/
+libs/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ===========================================
+# Test Reports
+# ===========================================
+test-results/
+surefire-reports/
+failsafe-reports/
+jacoco/
+coverage/
+*.exec
+*.ec
+
+# ===========================================
+# Environment Variables
+# ===========================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+*.env
+
+# ===========================================
+# Configuration Files (Sensitive)
+# ===========================================
+application-prod.yml
+application-prod.properties
+application-staging.yml
+application-staging.properties
+secrets.yml
+secrets.properties
+config/secrets/
+**/secrets/
+
+# ===========================================
+# Backup Files
+# ===========================================
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+# ===========================================
+# Documentation Build
+# ===========================================
+site/
+target/site/
+docs/_build/
+
+# ===========================================
+# Node.js (if using frontend tools)
+# ===========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# ===========================================
+# Python (if using Python scripts)
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ===========================================
+# JetBrains IDEs
+# ===========================================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ===========================================
+# NetBeans
+# ===========================================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ===========================================
+# Gradle (if using Gradle instead of Maven)
+# ===========================================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ===========================================
+# Package Files
+# ===========================================
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ===========================================
+# Virtual Machine Files
+# ===========================================
+*.vmdk
+*.vdi
+*.vbox
+*.vbox-prev
+
+# ===========================================
+# Banking Project Specific
+# ===========================================
+# Database dumps
+*.sql.backup
+*.sql.bak
+database-backup/
+db-backup/
+
+# Docker volumes
+mysql-data/
+postgres-data/
+
+# Application specific logs
+banking-logs/
+microservices-logs/
+
+# Test data
+test-data/
+sample-data/
+
+# ===========================================
+# Security
+# ===========================================
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+keystore/
+truststore/
+
+# ===========================================
+# Monitoring and Metrics
+# ===========================================
+metrics/
+monitoring/
+grafana-data/
+prometheus-data/
+
+# ===========================================
+# Keep Important Files
+# ===========================================
+!README.md
+!LICENSE
+!CONTRIBUTING.md
+!CHANGELOG.md
+!docker-compose.yml
+!docker-compose.*.yml
+!Dockerfile*
+!BaseDatos.sql
+!*.postman_collection.json
+!build.sh
+!database-setup.sh
+!test-mysql.sh

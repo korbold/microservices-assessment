@@ -1,0 +1,42 @@
+# Local Development Configuration for IntelliJ IDEA
+# This file contains the configuration for running services locally
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: account-movement-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/banking_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: banking_user
+    password: banking_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    open-in-view: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+logging:
+  level:
+    com.banking.account: DEBUG
+    org.springframework.web: DEBUG

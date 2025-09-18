@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: client-person-service
+          uri: lb://client-person-service
+          predicates:
+            - Path=/api/clientes/**, /api/personas/**
+          filters:
+            - StripPrefix=1
+        - id: account-movement-service
+          uri: lb://account-movement-service
+          predicates:
+            - Path=/api/cuentas/**, /api/movimientos/**, /api/reportes/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
