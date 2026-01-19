@@ -1,5 +1,9 @@
 package com.banking.account.exception;
 
+import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -17,6 +21,15 @@ import java.util.Map;
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    @Value("${spring.profiles.active:local}")
+    private String activeProfile;
+    
+    private boolean isProduction() {
+        return "prod".equals(activeProfile) || "production".equals(activeProfile);
+    }
 
     /**
      * Handle validation errors
@@ -75,6 +88,46 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+    
+    /**
+     * Handle Feign client exceptions
+     */
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorResponse> handleFeignException(
+            FeignException ex, WebRequest request) {
+        
+        logger.error("Feign client error occurred: status={}, message={}", ex.status(), ex.getMessage());
+        
+        HttpStatus httpStatus;
+        String message;
+        
+        if (ex.status() == 404) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            message = "Resource not found in external service";
+        } else if (ex.status() >= 500) {
+            httpStatus = HttpStatus.BAD_GATEWAY;
+            message = "External service error";
+        } else if (ex.status() == 503) {
+            httpStatus = HttpStatus.SERVICE_UNAVAILABLE;
+            message = "External service temporarily unavailable";
+        } else {
+            httpStatus = HttpStatus.BAD_GATEWAY;
+            message = "Error communicating with external service";
+        }
+        
+        String errorDetails = isProduction() 
+            ? message 
+            : String.format("%s: %s", message, ex.getMessage());
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            message,
+            errorDetails,
+            httpStatus.value(),
+            LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(errorResponse, httpStatus);
+    }
 
     /**
      * Handle generic exceptions
@@ -83,9 +136,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
         
+        // Log full stack trace for debugging
+        logger.error("Internal server error occurred", ex);
+        
+        // In production, hide technical details
+        String errorDetails = isProduction() 
+            ? "An unexpected error occurred. Please contact support." 
+            : ex.getMessage();
+        
         ErrorResponse errorResponse = new ErrorResponse(
             "Internal server error",
-            ex.getMessage(),
+            errorDetails,
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
         );

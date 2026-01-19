@@ -1,9 +1,13 @@
 package com.banking.account.service;
 
 import com.banking.account.dto.AccountDto;
+import com.banking.account.dto.ClientInfoDto;
 import com.banking.account.entity.Account;
+import com.banking.account.feign.ClientFeignClient;
 import com.banking.account.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,15 +25,28 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
     
+    @Autowired
+    private ClientFeignClient clientFeignClient;
+    
     /**
      * Create a new account
      * @param accountDto the account data
      * @return the created account
-     * @throws IllegalArgumentException if account with number already exists
+     * @throws IllegalArgumentException if account with number already exists or client is invalid
      */
     public AccountDto createAccount(AccountDto accountDto) {
         if (accountRepository.existsByNumeroCuenta(accountDto.getNumeroCuenta())) {
             throw new IllegalArgumentException("Account with number " + accountDto.getNumeroCuenta() + " already exists");
+        }
+        
+        // Validate that client exists and is active
+        try {
+            ClientInfoDto clientInfo = clientFeignClient.getClientById(accountDto.getClienteId());
+            if (clientInfo == null || !Boolean.TRUE.equals(clientInfo.getEstado())) {
+                throw new IllegalArgumentException("Client with ID " + accountDto.getClienteId() + " not found or inactive");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Client with ID " + accountDto.getClienteId() + " not found or unavailable");
         }
         
         Account account = new Account(
@@ -45,14 +62,14 @@ public class AccountService {
     }
     
     /**
-     * Get all accounts
-     * @return list of all accounts
+     * Get all accounts with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of accounts
      */
     @Transactional(readOnly = true)
-    public List<AccountDto> getAllAccounts() {
-        return accountRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public Page<AccountDto> getAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable)
+                .map(this::convertToDto);
     }
     
     /**

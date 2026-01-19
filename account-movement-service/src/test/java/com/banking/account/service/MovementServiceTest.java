@@ -12,6 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +25,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 /**
@@ -180,15 +183,18 @@ class MovementServiceTest {
     @Test
     void getAllMovements_Success() {
         // Given
-        when(movementRepository.findAll()).thenReturn(Arrays.asList(movement));
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Movement> movementPage = new PageImpl<>(Arrays.asList(movement), pageable, 1);
+        when(movementRepository.findAll(any(Pageable.class))).thenReturn(movementPage);
 
         // When
-        List<MovementDto> result = movementService.getAllMovements();
+        Page<MovementDto> result = movementService.getAllMovements(pageable);
 
         // Then
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Deposito", result.get(0).getTipoMovimiento());
+        assertEquals(1, result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Deposito", result.getContent().get(0).getTipoMovimiento());
     }
 
     @Test

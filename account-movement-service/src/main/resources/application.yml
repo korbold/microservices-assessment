@@ -21,6 +21,16 @@ spring:
   h2:
     console:
       enabled: ${SPRING_H2_CONSOLE_ENABLED:false}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: account-movement-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      properties:
+        spring.json.trusted.packages: "*"
 
 eureka:
   client:
@@ -35,8 +45,28 @@ feign:
       default:
         connectTimeout: 5000
         readTimeout: 5000
+  circuitbreaker:
+    enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      client-person-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  timelimiter:
+    instances:
+      client-person-service:
+        timeoutDuration: 3s
 
 logging:
   level:
     com.banking.account: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.kafka: INFO

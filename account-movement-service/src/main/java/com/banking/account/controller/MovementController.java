@@ -1,10 +1,12 @@
 package com.banking.account.controller;
 
 import com.banking.account.dto.MovementDto;
-import com.banking.account.dto.ReportDto;
 import com.banking.account.service.MovementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/movimientos")
-@CrossOrigin(origins = "*")
 public class MovementController {
     
     @Autowired
@@ -40,12 +41,18 @@ public class MovementController {
     }
     
     /**
-     * Get all movements
-     * @return list of all movements
+     * Get all movements with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of movements
      */
     @GetMapping
-    public ResponseEntity<List<MovementDto>> getAllMovements() {
-        List<MovementDto> movements = movementService.getAllMovements();
+    public ResponseEntity<Page<MovementDto>> getAllMovements(
+            @PageableDefault(size = 20) Pageable pageable) {
+        // Validate and limit page size
+        if (pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size cannot exceed 100");
+        }
+        Page<MovementDto> movements = movementService.getAllMovements(pageable);
         return ResponseEntity.ok(movements);
     }
     

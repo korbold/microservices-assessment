@@ -1,5 +1,8 @@
 package com.banking.client.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -17,6 +20,15 @@ import java.util.Map;
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    @Value("${spring.profiles.active:local}")
+    private String activeProfile;
+    
+    private boolean isProduction() {
+        return "prod".equals(activeProfile) || "production".equals(activeProfile);
+    }
 
     /**
      * Handle validation errors
@@ -66,9 +78,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
         
+        // Log full stack trace for debugging
+        logger.error("Internal server error occurred", ex);
+        
+        // In production, hide technical details
+        String errorDetails = isProduction() 
+            ? "An unexpected error occurred. Please contact support." 
+            : ex.getMessage();
+        
         ErrorResponse errorResponse = new ErrorResponse(
             "Internal server error",
-            ex.getMessage(),
+            errorDetails,
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
         );

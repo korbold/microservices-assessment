@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 /**
  * Feign client for communicating with Client-Person service
  */
-@FeignClient(name = "client-person-service")
+@FeignClient(name = "client-person-service", fallback = ClientFeignClientFallback.class)
 public interface ClientFeignClient {
     
     /**

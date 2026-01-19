@@ -7,7 +7,11 @@ import com.banking.account.entity.Movement;
 import com.banking.account.feign.ClientFeignClient;
 import com.banking.account.repository.AccountRepository;
 import com.banking.account.repository.MovementRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +37,8 @@ public class MovementService {
     @Autowired
     private ClientFeignClient clientFeignClient;
     
+    private static final Logger logger = LoggerFactory.getLogger(MovementService.class);
+    
     /**
      * Create a new movement
      * @param movementDto the movement data
@@ -40,10 +46,17 @@ public class MovementService {
      * @throws IllegalArgumentException if account not found or insufficient balance
      */
     public MovementDto createMovement(MovementDto movementDto) {
+        logger.info("Creating movement: type={}, value={}, accountId={}", 
+            movementDto.getTipoMovimiento(), movementDto.getValor(), movementDto.getCuentaId());
+        
         Account account = accountRepository.findById(movementDto.getCuentaId())
-                .orElseThrow(() -> new IllegalArgumentException("Account with ID " + movementDto.getCuentaId() + " not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Attempt to create movement for non-existent account: {}", movementDto.getCuentaId());
+                    return new IllegalArgumentException("Account with ID " + movementDto.getCuentaId() + " not found");
+                });
         
         if (!account.getEstado()) {
+            logger.warn("Attempt to create movement for inactive account: {}", movementDto.getCuentaId());
             throw new IllegalArgumentException("Account is inactive");
         }
         
@@ -53,12 +66,19 @@ public class MovementService {
         
         if ("Deposito".equals(movementDto.getTipoMovimiento())) {
             newBalance = currentBalance.add(movementDto.getValor());
+            logger.info("Deposit: accountId={}, currentBalance={}, amount={}, newBalance={}", 
+                movementDto.getCuentaId(), currentBalance, movementDto.getValor(), newBalance);
         } else if ("Retiro".equals(movementDto.getTipoMovimiento())) {
             newBalance = currentBalance.subtract(movementDto.getValor());
             if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                logger.warn("Insufficient balance: accountId={}, currentBalance={}, requested={}", 
+                    movementDto.getCuentaId(), currentBalance, movementDto.getValor());
                 throw new IllegalArgumentException("Saldo no disponible");
             }
+            logger.info("Withdrawal: accountId={}, currentBalance={}, amount={}, newBalance={}", 
+                movementDto.getCuentaId(), currentBalance, movementDto.getValor(), newBalance);
         } else {
+            logger.warn("Invalid movement type: {}", movementDto.getTipoMovimiento());
             throw new IllegalArgumentException("Invalid movement type");
         }
         
@@ -71,18 +91,20 @@ public class MovementService {
         );
         
         Movement savedMovement = movementRepository.save(movement);
+        logger.info("Movement created successfully: movementId={}, accountId={}, type={}, newBalance={}", 
+            savedMovement.getMovimientoId(), movementDto.getCuentaId(), movementDto.getTipoMovimiento(), newBalance);
         return convertToDto(savedMovement);
     }
     
     /**
-     * Get all movements
-     * @return list of all movements
+     * Get all movements with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of movements
      */
     @Transactional(readOnly = true)
-    public List<MovementDto> getAllMovements() {
-        return movementRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public Page<MovementDto> getAllMovements(Pageable pageable) {
+        return movementRepository.findAll(pageable)
+                .map(this::convertToDto);
     }
     
     /**
@@ -135,37 +157,22 @@ public class MovementService {
         List<Movement> movements = movementRepository.findByClienteIdAndFechaBetween(clienteId, fechaInicio, fechaFin);
         
         return movements.stream().map(movement -> {
-            try {
-                // Get client information from external service
-                var clientInfo = clientFeignClient.getClientById(clienteId);
-                
-                // Get account information
-                Account account = accountRepository.findById(movement.getCuentaId()).orElse(null);
-                
-                return new ReportDto(
-                    movement.getFecha(),
-                    clientInfo.getNombre(),
-                    account != null ? account.getNumeroCuenta() : "N/A",
-                    account != null ? account.getTipoCuenta() : "N/A",
-                    account != null ? account.getSaldoInicial() : BigDecimal.ZERO,
-                    account != null ? account.getEstado() : false,
-                    movement.getValor(),
-                    movement.getSaldo()
-                );
-            } catch (Exception e) {
-                // Fallback if client service is unavailable
-                Account account = accountRepository.findById(movement.getCuentaId()).orElse(null);
-                return new ReportDto(
-                    movement.getFecha(),
-                    "Cliente no disponible",
-                    account != null ? account.getNumeroCuenta() : "N/A",
-                    account != null ? account.getTipoCuenta() : "N/A",
-                    account != null ? account.getSaldoInicial() : BigDecimal.ZERO,
-                    account != null ? account.getEstado() : false,
-                    movement.getValor(),
-                    movement.getSaldo()
-                );
-            }
+            // Get client information from external service (fallback handled by Circuit Breaker)
+            var clientInfo = clientFeignClient.getClientById(clienteId);
+            
+            // Get account information
+            Account account = accountRepository.findById(movement.getCuentaId()).orElse(null);
+            
+            return new ReportDto(
+                movement.getFecha(),
+                clientInfo.getNombre(),
+                account != null ? account.getNumeroCuenta() : "N/A",
+                account != null ? account.getTipoCuenta() : "N/A",
+                account != null ? account.getSaldoInicial() : BigDecimal.ZERO,
+                account != null ? account.getEstado() : false,
+                movement.getValor(),
+                movement.getSaldo()
+            );
         }).collect(Collectors.toList());
     }
     

@@ -47,40 +47,78 @@ CREATE TABLE IF NOT EXISTS movimientos (
     FOREIGN KEY (cuenta_id) REFERENCES cuentas(cuenta_id) ON DELETE CASCADE
 );
 
+-- Clear existing sample data before inserting (for clean initialization)
+DELETE FROM movimientos;
+DELETE FROM cuentas;
+DELETE FROM clientes;
+DELETE FROM personas;
+
+-- Reset AUTO_INCREMENT after DELETE
+ALTER TABLE personas AUTO_INCREMENT = 1;
+ALTER TABLE clientes AUTO_INCREMENT = 1;
+ALTER TABLE cuentas AUTO_INCREMENT = 1;
+ALTER TABLE movimientos AUTO_INCREMENT = 1;
+
 -- Insert sample data for personas
-INSERT INTO personas (nombre, genero, edad, identificacion, direccion, telefono) VALUES
+INSERT IGNORE INTO personas (nombre, genero, edad, identificacion, direccion, telefono) VALUES
 ('Jose Lema', 'M', 30, '1234567890', 'Otavalo sn y principal', '0982547856'),
 ('Marianela Montalvo', 'F', 25, '0987654321', 'Amazonas y NNUU', '0975489654'),
 ('Juan Osorio', 'M', 35, '1122334455', '13 junio y Equinoccial', '0988745876');
 
--- Insert sample data for clientes
-INSERT INTO clientes (persona_id, contrasena, estado) VALUES
-(1, '1234', TRUE),
-(2, '5678', TRUE),
-(3, '1245', TRUE);
+-- Insert sample data for clientes using subqueries to get correct persona_id
+INSERT IGNORE INTO clientes (persona_id, contrasena, estado) 
+SELECT persona_id, '1234', TRUE FROM personas WHERE identificacion = '1234567890'
+UNION ALL
+SELECT persona_id, '5678', TRUE FROM personas WHERE identificacion = '0987654321'
+UNION ALL
+SELECT persona_id, '1245', TRUE FROM personas WHERE identificacion = '1122334455';
 
--- Insert sample data for cuentas
-INSERT INTO cuentas (numero_cuenta, tipo_cuenta, saldo_inicial, estado, cliente_id) VALUES
-('478758', 'Ahorro', 2000.00, TRUE, 1),
-('225487', 'Corriente', 100.00, TRUE, 2),
-('495878', 'Ahorros', 0.00, TRUE, 3),
-('496825', 'Ahorros', 540.00, TRUE, 2),
-('585545', 'Corriente', 1000.00, TRUE, 1);
+-- Insert sample data for cuentas using subqueries to get correct cliente_id
+INSERT IGNORE INTO cuentas (numero_cuenta, tipo_cuenta, saldo_inicial, estado, cliente_id)
+SELECT '478758', 'Ahorro', 2000.00, TRUE, cliente_id FROM clientes WHERE persona_id = (SELECT persona_id FROM personas WHERE identificacion = '1234567890')
+UNION ALL
+SELECT '225487', 'Corriente', 100.00, TRUE, cliente_id FROM clientes WHERE persona_id = (SELECT persona_id FROM personas WHERE identificacion = '0987654321')
+UNION ALL
+SELECT '495878', 'Ahorros', 0.00, TRUE, cliente_id FROM clientes WHERE persona_id = (SELECT persona_id FROM personas WHERE identificacion = '1122334455')
+UNION ALL
+SELECT '496825', 'Ahorros', 540.00, TRUE, cliente_id FROM clientes WHERE persona_id = (SELECT persona_id FROM personas WHERE identificacion = '0987654321')
+UNION ALL
+SELECT '585545', 'Corriente', 1000.00, TRUE, cliente_id FROM clientes WHERE persona_id = (SELECT persona_id FROM personas WHERE identificacion = '1234567890');
 
--- Insert sample data for movimientos
-INSERT INTO movimientos (fecha, tipo_movimiento, valor, saldo, cuenta_id) VALUES
-('2024-02-10 10:30:00', 'Retiro', 575.00, 1425.00, 1),
-('2024-02-10 11:15:00', 'Deposito', 600.00, 700.00, 2),
-('2024-02-08 14:20:00', 'Deposito', 150.00, 150.00, 3),
-('2024-02-08 16:45:00', 'Retiro', 540.00, 0.00, 4);
+-- Insert sample data for movimientos using subqueries to get correct cuenta_id
+INSERT IGNORE INTO movimientos (fecha, tipo_movimiento, valor, saldo, cuenta_id)
+SELECT '2024-02-10 10:30:00', 'Retiro', 575.00, 1425.00, cuenta_id FROM cuentas WHERE numero_cuenta = '478758'
+UNION ALL
+SELECT '2024-02-10 11:15:00', 'Deposito', 600.00, 700.00, cuenta_id FROM cuentas WHERE numero_cuenta = '225487'
+UNION ALL
+SELECT '2024-02-08 14:20:00', 'Deposito', 150.00, 150.00, cuenta_id FROM cuentas WHERE numero_cuenta = '495878'
+UNION ALL
+SELECT '2024-02-08 16:45:00', 'Retiro', 540.00, 0.00, cuenta_id FROM cuentas WHERE numero_cuenta = '496825';
 
 -- Create indexes for better performance
-CREATE INDEX idx_personas_identificacion ON personas(identificacion);
-CREATE INDEX idx_clientes_persona_id ON clientes(persona_id);
-CREATE INDEX idx_cuentas_numero_cuenta ON cuentas(numero_cuenta);
-CREATE INDEX idx_cuentas_cliente_id ON cuentas(cliente_id);
-CREATE INDEX idx_movimientos_cuenta_id ON movimientos(cuenta_id);
-CREATE INDEX idx_movimientos_fecha ON movimientos(fecha);
+-- Note: personas.identificacion already has an index from UNIQUE constraint (automatic)
+-- Note: cuentas.numero_cuenta already has an index from UNIQUE constraint (automatic)
+-- Only create indexes for non-UNIQUE columns
+
+-- Create indexes with error handling for idempotent execution
+DELIMITER //
+CREATE PROCEDURE CreateIndexes()
+BEGIN
+    DECLARE CONTINUE HANDLER FOR 1061 BEGIN END; -- Ignore duplicate key name error
+    CREATE INDEX idx_clientes_persona_id ON clientes(persona_id);
+    CREATE INDEX idx_cuentas_cliente_id ON cuentas(cliente_id);
+    CREATE INDEX idx_movimientos_cuenta_id ON movimientos(cuenta_id);
+    CREATE INDEX idx_movimientos_fecha ON movimientos(fecha);
+END //
+DELIMITER ;
+
+CALL CreateIndexes();
+DROP PROCEDURE IF EXISTS CreateIndexes;
+
+-- Drop views if they exist (for idempotent script execution)
+DROP VIEW IF EXISTS vista_movimientos_detallados;
+DROP VIEW IF EXISTS vista_cuentas_con_cliente;
+DROP VIEW IF EXISTS vista_clientes_completos;
 
 -- Create views for common queries
 CREATE VIEW vista_clientes_completos AS
@@ -125,6 +163,10 @@ FROM movimientos m
 JOIN cuentas cu ON m.cuenta_id = cu.cuenta_id
 JOIN clientes cl ON cu.cliente_id = cl.cliente_id
 JOIN personas p ON cl.persona_id = p.persona_id;
+
+-- Drop stored procedures if they exist (for idempotent script execution)
+DROP PROCEDURE IF EXISTS CreateMovementWithValidation;
+DROP PROCEDURE IF EXISTS GetAccountBalance;
 
 -- Create stored procedures for common operations
 DELIMITER //

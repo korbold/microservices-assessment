@@ -4,6 +4,9 @@ import com.banking.account.dto.AccountDto;
 import com.banking.account.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +19,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/cuentas")
-@CrossOrigin(origins = "*")
 public class AccountController {
     
     @Autowired
@@ -38,12 +40,18 @@ public class AccountController {
     }
     
     /**
-     * Get all accounts
-     * @return list of all accounts
+     * Get all accounts with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of accounts
      */
     @GetMapping
-    public ResponseEntity<List<AccountDto>> getAllAccounts() {
-        List<AccountDto> accounts = accountService.getAllAccounts();
+    public ResponseEntity<Page<AccountDto>> getAllAccounts(
+            @PageableDefault(size = 20) Pageable pageable) {
+        // Validate and limit page size
+        if (pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size cannot exceed 100");
+        }
+        Page<AccountDto> accounts = accountService.getAllAccounts(pageable);
         return ResponseEntity.ok(accounts);
     }
     

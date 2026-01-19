@@ -1,5 +1,8 @@
 package com.banking.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +24,8 @@ public class ClientDto {
     private String genero;
     
     @NotNull(message = "Age is required")
+    @Min(value = 18, message = "Age must be at least 18")
+    @Max(value = 120, message = "Age must not exceed 120")
     private Integer edad;
     
     @NotBlank(message = "Identification is required")
@@ -37,6 +42,7 @@ public class ClientDto {
     
     @NotBlank(message = "Password is required")
     @Size(min = 4, max = 20, message = "Password must be between 4 and 20 characters")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String contrasena;
     
     @NotNull(message = "Status is required")

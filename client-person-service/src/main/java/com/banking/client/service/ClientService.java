@@ -3,7 +3,13 @@ package com.banking.client.service;
 import com.banking.client.dto.ClientDto;
 import com.banking.client.entity.Client;
 import com.banking.client.repository.ClientRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +27,12 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
     
+    @Autowired
+    private ClientEventPublisher eventPublisher;
+    
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
+    
     /**
      * Create a new client
      * @param clientDto the client data
@@ -28,9 +40,15 @@ public class ClientService {
      * @throws IllegalArgumentException if client with identification already exists
      */
     public ClientDto createClient(ClientDto clientDto) {
+        logger.info("Creating new client with identification: {}", clientDto.getIdentificacion());
+        
         if (clientRepository.existsByIdentificacion(clientDto.getIdentificacion())) {
+            logger.warn("Attempt to create client with existing identification: {}", clientDto.getIdentificacion());
             throw new IllegalArgumentException("Client with identification " + clientDto.getIdentificacion() + " already exists");
         }
+        
+        // Encrypt password before saving
+        String encryptedPassword = passwordEncoder.encode(clientDto.getContrasena());
         
         Client client = new Client(
             clientDto.getNombre(),
@@ -39,23 +57,29 @@ public class ClientService {
             clientDto.getIdentificacion(),
             clientDto.getDireccion(),
             clientDto.getTelefono(),
-            clientDto.getContrasena(),
+            encryptedPassword,
             clientDto.getEstado()
         );
         
         Client savedClient = clientRepository.save(client);
-        return convertToDto(savedClient);
+        logger.info("Client created successfully with ID: {}, identification: {}", savedClient.getClienteId(), savedClient.getIdentificacion());
+        
+        // Publish client created event asynchronously via Kafka
+        ClientDto savedClientDto = convertToDto(savedClient);
+        eventPublisher.publishClientCreated(savedClientDto);
+        
+        return savedClientDto;
     }
     
     /**
-     * Get all clients
-     * @return list of all clients
+     * Get all clients with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of clients
      */
     @Transactional(readOnly = true)
-    public List<ClientDto> getAllClients() {
-        return clientRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public Page<ClientDto> getAllClients(Pageable pageable) {
+        return clientRepository.findAll(pageable)
+                .map(this::convertToDto);
     }
     
     /**
@@ -88,12 +112,18 @@ public class ClientService {
      * @throws IllegalArgumentException if client not found
      */
     public ClientDto updateClient(Long id, ClientDto clientDto) {
+        logger.info("Updating client with ID: {}", id);
+        
         Client existingClient = clientRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Client with ID " + id + " not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Attempt to update non-existent client with ID: {}", id);
+                    return new IllegalArgumentException("Client with ID " + id + " not found");
+                });
         
         // Check if identification is being changed and if new one already exists
         if (!existingClient.getIdentificacion().equals(clientDto.getIdentificacion()) &&
             clientRepository.existsByIdentificacion(clientDto.getIdentificacion())) {
+            logger.warn("Attempt to update client ID {} with existing identification: {}", id, clientDto.getIdentificacion());
             throw new IllegalArgumentException("Client with identification " + clientDto.getIdentificacion() + " already exists");
         }
         
@@ -103,11 +133,24 @@ public class ClientService {
         existingClient.setIdentificacion(clientDto.getIdentificacion());
         existingClient.setDireccion(clientDto.getDireccion());
         existingClient.setTelefono(clientDto.getTelefono());
-        existingClient.setContrasena(clientDto.getContrasena());
+        
+        // Only update password if a new one is provided
+        if (clientDto.getContrasena() != null && !clientDto.getContrasena().isEmpty()) {
+            logger.info("Password updated for client ID: {}", id);
+            String encryptedPassword = passwordEncoder.encode(clientDto.getContrasena());
+            existingClient.setContrasena(encryptedPassword);
+        }
+        
         existingClient.setEstado(clientDto.getEstado());
         
         Client updatedClient = clientRepository.save(existingClient);
-        return convertToDto(updatedClient);
+        logger.info("Client updated successfully with ID: {}", id);
+        
+        // Publish client updated event asynchronously via Kafka
+        ClientDto updatedClientDto = convertToDto(updatedClient);
+        eventPublisher.publishClientUpdated(updatedClientDto);
+        
+        return updatedClientDto;
     }
     
     /**
@@ -120,17 +163,21 @@ public class ClientService {
             throw new IllegalArgumentException("Client with ID " + id + " not found");
         }
         clientRepository.deleteById(id);
+        
+        // Publish client deleted event asynchronously via Kafka
+        eventPublisher.publishClientDeleted(id);
+        logger.info("Client deleted successfully with ID: {}", id);
     }
     
     /**
-     * Get active clients
-     * @return list of active clients
+     * Get active clients with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of active clients
      */
     @Transactional(readOnly = true)
-    public List<ClientDto> getActiveClients() {
-        return clientRepository.findByEstadoTrue().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public Page<ClientDto> getActiveClients(Pageable pageable) {
+        return clientRepository.findByEstadoTrue(pageable)
+                .map(this::convertToDto);
     }
     
     /**
@@ -147,7 +194,7 @@ public class ClientService {
         dto.setIdentificacion(client.getIdentificacion());
         dto.setDireccion(client.getDireccion());
         dto.setTelefono(client.getTelefono());
-        dto.setContrasena(client.getContrasena());
+        // Do not include password in DTO response for security
         dto.setEstado(client.getEstado());
         return dto;
     }

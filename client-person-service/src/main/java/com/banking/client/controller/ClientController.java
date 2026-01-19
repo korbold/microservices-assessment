@@ -4,11 +4,13 @@ import com.banking.client.dto.ClientDto;
 import com.banking.client.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,7 +18,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/clientes")
-@CrossOrigin(origins = "*")
 public class ClientController {
     
     @Autowired
@@ -38,12 +39,18 @@ public class ClientController {
     }
     
     /**
-     * Get all clients
-     * @return list of all clients
+     * Get all clients with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of clients
      */
     @GetMapping
-    public ResponseEntity<List<ClientDto>> getAllClients() {
-        List<ClientDto> clients = clientService.getAllClients();
+    public ResponseEntity<Page<ClientDto>> getAllClients(
+            @PageableDefault(size = 20) Pageable pageable) {
+        // Validate and limit page size
+        if (pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size cannot exceed 100");
+        }
+        Page<ClientDto> clients = clientService.getAllClients(pageable);
         return ResponseEntity.ok(clients);
     }
     
@@ -109,12 +116,18 @@ public class ClientController {
     }
     
     /**
-     * Get active clients
-     * @return list of active clients
+     * Get active clients with pagination
+     * @param pageable pagination parameters
+     * @return paginated list of active clients
      */
     @GetMapping("/activos")
-    public ResponseEntity<List<ClientDto>> getActiveClients() {
-        List<ClientDto> clients = clientService.getActiveClients();
+    public ResponseEntity<Page<ClientDto>> getActiveClients(
+            @PageableDefault(size = 20) Pageable pageable) {
+        // Validate and limit page size
+        if (pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size cannot exceed 100");
+        }
+        Page<ClientDto> clients = clientService.getActiveClients(pageable);
         return ResponseEntity.ok(clients);
     }
     

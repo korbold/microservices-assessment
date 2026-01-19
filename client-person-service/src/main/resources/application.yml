@@ -21,6 +21,14 @@ spring:
   h2:
     console:
       enabled: ${SPRING_H2_CONSOLE_ENABLED:false}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      enable-idempotence: true
 
 eureka:
   client:
@@ -33,3 +41,4 @@ logging:
   level:
     com.banking.client: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.kafka: INFO
